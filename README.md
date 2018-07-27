@@ -18,3 +18,5 @@ Some things I still need to determine:
 -   What language should I write the compiler in?
 -   What major language features would I like Finola to have?
 -   Should I name the compiler Finola and the language Swan? Perhaps vice versa?
+
+Logo for this project created on <a href="http://logomakr.com" title="Logo Makr">LogoMakr.com</a>: https://logomakr.com/1qjbs4
