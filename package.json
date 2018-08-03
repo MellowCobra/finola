@@ -1,0 +1,27 @@
+{
+  "name": "finola",
+  "version": "0.1.0",
+  "description": "Finola is a general-purpose language that compiles down to Web Assembly modules",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MellowCobra/finola.git"
+  },
+  "keywords": [
+    "wasm",
+    "wat",
+    "wast",
+    "finola",
+    "javascript",
+    "js"
+  ],
+  "author": "Grayson Dubois (@MellowCobra)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MellowCobra/finola/issues"
+  },
+  "homepage": "https://github.com/MellowCobra/finola#readme"
+}
