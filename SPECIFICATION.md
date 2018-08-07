@@ -168,8 +168,8 @@ The following boolean expressions are supported:
 -   `Comparison`
     -   1 `<` 2
     -   2 `>` 1
-    -   3 <= 3
-    -   4 >= 4
+    -   3 `<=` 3
+    -   4 `>=` 4
 
 Numeric value types may appear in boolean expressions. In that case, the numeric values are coerced to a boolean value according to the following rule:
 
