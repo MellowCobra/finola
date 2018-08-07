@@ -1,27 +1,52 @@
 {
-  "name": "finola",
-  "version": "0.1.0",
-  "description": "Finola is a general-purpose language that compiles down to Web Assembly modules",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/MellowCobra/finola.git"
-  },
-  "keywords": [
-    "wasm",
-    "wat",
-    "wast",
-    "finola",
-    "javascript",
-    "js"
-  ],
-  "author": "Grayson Dubois (@MellowCobra)",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/MellowCobra/finola/issues"
-  },
-  "homepage": "https://github.com/MellowCobra/finola#readme"
+    "name": "finola",
+    "version": "0.1.0",
+    "description": "Finola is a general-purpose language that compiles down to Web Assembly modules",
+    "private": true,
+    "mode": "development",
+    "scripts": {
+        "test": "jest",
+        "repl": "node ./dist/main.js",
+        "compile": "node ./dist/main.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/MellowCobra/finola.git"
+    },
+    "keywords": [
+        "wasm",
+        "wat",
+        "wast",
+        "finola",
+        "javascript",
+        "js"
+    ],
+    "author": "Grayson Dubois (@MellowCobra)",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/MellowCobra/finola/issues"
+    },
+    "homepage": "https://github.com/MellowCobra/finola#readme",
+    "devDependencies": {
+        "babel": "^6.23.0",
+        "babel-jest": "^23.4.2",
+        "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
+        "jest": "^23.4.2",
+        "webpack": "^4.16.5",
+        "webpack-cli": "^3.1.0"
+    },
+    "jest": {
+        "testEnvironment": "node",
+        "verbose": false,
+        "moduleDirectories": [
+            "node_modules",
+            "src"
+        ],
+        "transform": {
+            "^.+\\.js$": "<rootDir>/node_modules/babel-jest"
+        },
+        "collectCoverageFrom": [
+            "**/src/**/*.js"
+        ]
+    }
 }
