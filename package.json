@@ -6,6 +6,7 @@
     "mode": "development",
     "scripts": {
         "test": "jest",
+        "test:watch": "jest --watchAll",
         "repl": "node ./dist/main.js",
         "compile": "node ./dist/main.js"
     },
