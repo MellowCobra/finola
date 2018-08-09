@@ -68,10 +68,7 @@ _**TODO:**_ I've always just kind of used my own form for my CFGs, but I suppose
                        | primary
                        ;
 
-    primary            → INT
-                       | LONG
-                       | FLOAT
-                       | DOUBLE
+    primary            → NUMBER
                        | TRUE
                        | FALSE
                        | LPR expression RPR
