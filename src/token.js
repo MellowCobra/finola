@@ -1,4 +1,4 @@
-export class Token {
+export default class Token {
     constructor(type, lexeme, line, start) {
         this.type = type
         this.lexeme = lexeme

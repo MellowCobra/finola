@@ -1,3 +1,45 @@
+import TokenType from './tokenType.js'
+import Token from './token.js'
+
+//#region Keywords
+// Keywords is an object that acts as a dictionary where the keys are
+// lexemes for finola keywords and the values are functions which generate
+// the associated Token for said keywords. The default entry (stored at '_')
+// is used for identifiers which do not match the other keywords
+const Keywords = Object.freeze({
+    true: (lexeme, line, start) =>
+        new Token(TokenType.BOOL, lexeme, line, start),
+    false: (lexeme, line, start) =>
+        new Token(TokenType.BOOL, lexeme, line, start),
+    return: (lexeme, line, start) =>
+        new Token(TokenType.RETURN, lexeme, line, start),
+    let: (lexeme, line, start) => new Token(TokenType.LET, lexeme, line, start),
+    func: (lexeme, line, start) =>
+        new Token(TokenType.FUNC, lexeme, line, start),
+    module: (lexeme, line, start) =>
+        new Token(TokenType.MODULE, lexeme, line, start),
+    export: (lexeme, line, start) =>
+        new Token(TokenType.EXPORT, lexeme, line, start),
+    import: (lexeme, line, start) =>
+        new Token(TokenType.IMPORT, lexeme, line, start),
+    or: (lexeme, line, start) => new Token(TokenType.OR, lexeme, line, start),
+    and: (lexeme, line, start) => new Token(TokenType.AND, lexeme, line, start),
+    int: (lexeme, line, start) =>
+        new Token(TokenType.INT_T, lexeme, line, start),
+    long: (lexeme, line, start) =>
+        new Token(TokenType.LONG_T, lexeme, line, start),
+    float: (lexeme, line, start) =>
+        new Token(TokenType.FLOAT_T, lexeme, line, start),
+    double: (lexeme, line, start) =>
+        new Token(TokenType.DOUBLE_T, lexeme, line, start),
+    bool: (lexeme, line, start) =>
+        new Token(TokenType.BOOL_T, lexeme, line, start),
+    _: (lexeme, line, start) => new Token(TokenType.ID, lexeme, line, start),
+})
+
+//#endregion Keywords
+
+//#region Lexer
 export class Lexer {
     constructor(program) {
         // If there is no program, default to empty string
@@ -25,8 +67,20 @@ export class Lexer {
         this.start = 0
     }
 
+    getAllTokens() {
+        const tokens = []
+
+        while (!this.isAtEnd()) {
+            tokens.push(this.getNextToken())
+        }
+
+        tokens.push(new Token(TokenType.NULLCHAR, '\0', this.line, this.start))
+
+        return tokens
+    }
+
     // ** Get the next token from input
-    // ** Main functionality of the Lexer
+    // ** Main interface of the Lexer
     getNextToken() {
         // Skip whitespace characters
         if (this.isWhitespace(this.currentChar())) {
@@ -36,18 +90,193 @@ export class Lexer {
         let currChar = this.currentChar()
 
         if (this.isAlphabetic(currChar)) {
-            return identifier()
+            return this.identifier()
         } else if (this.isNumeric(currChar)) {
-            return number()
-        } else if (currChar === '+') {
-        } else if (currChar === '-') {
-        } else if (currChar === '/') {
-        } else if (currChar === '*') {
-        } else if (currChar === '!') {
+            return this.number()
         } else if (currChar === '=') {
+            const start = this.start
+            this.advance()
+
+            if (this.currentChar() === '=') {
+                this.advance()
+                return new Token(TokenType.EE, '==', this.line, start)
+            } else {
+                return new Token(TokenType.EQ, '=', this.line, start)
+            }
+        } else if (currChar === '!') {
+            const start = this.start
+            this.advance()
+
+            if (this.currentChar() === '=') {
+                this.advance()
+                return new Token(TokenType.NE, '!=', this.line, start)
+            } else {
+                return new Token(TokenType.BANG, '!', this.line, start)
+            }
         } else if (currChar === '>') {
-        } else if (currChar === '>') {
+            const start = this.start
+            this.advance()
+
+            if (this.currentChar() === '=') {
+                this.advance()
+                return new Token(TokenType.GE, '>=', this.line, start)
+            } else {
+                return new Token(TokenType.GT, '>', this.line, start)
+            }
+        } else if (currChar === '<') {
+            const start = this.start
+            this.advance()
+
+            if (this.currentChar() === '=') {
+                this.advance()
+                return new Token(TokenType.LE, '<=', this.line, start)
+            } else {
+                return new Token(TokenType.LT, '<', this.line, start)
+            }
+        } else if (currChar === '+') {
+            const token = new Token(
+                TokenType.PLUS,
+                currChar,
+                this.line,
+                this.start
+            )
+            this.advance()
+            return token
+        } else if (currChar === '-') {
+            const token = new Token(
+                TokenType.MINUS,
+                currChar,
+                this.line,
+                this.start
+            )
+            this.advance()
+            return token
+        } else if (currChar === '/') {
+            const token = new Token(
+                TokenType.SLASH,
+                currChar,
+                this.line,
+                this.start
+            )
+            this.advance()
+            return token
+        } else if (currChar === '*') {
+            const token = new Token(
+                TokenType.STAR,
+                currChar,
+                this.line,
+                this.start
+            )
+            this.advance()
+            return token
+        } else if (currChar === '.') {
+            const token = new Token(
+                TokenType.DOT,
+                currChar,
+                this.line,
+                this.start
+            )
+            this.advance()
+            return token
+        } else if (currChar === '%') {
+            const token = new Token(
+                TokenType.MOD,
+                currChar,
+                this.line,
+                this.start
+            )
+            this.advance()
+            return token
+        } else if (currChar === '^') {
+            const token = new Token(
+                TokenType.CARET,
+                currChar,
+                this.line,
+                this.start
+            )
+            this.advance()
+            return token
+        } else if (currChar === '(') {
+            const token = new Token(
+                TokenType.LPR,
+                currChar,
+                this.line,
+                this.start
+            )
+            this.advance()
+            return token
+        } else if (currChar === ')') {
+            const token = new Token(
+                TokenType.RPR,
+                currChar,
+                this.line,
+                this.start
+            )
+            this.advance()
+            return token
+        } else if (currChar === '{') {
+            const token = new Token(
+                TokenType.LCB,
+                currChar,
+                this.line,
+                this.start
+            )
+            this.advance()
+            return token
+        } else if (currChar === '}') {
+            const token = new Token(
+                TokenType.RCB,
+                currChar,
+                this.line,
+                this.start
+            )
+            this.advance()
+            return token
+        } else if (currChar === '[') {
+            const token = new Token(
+                TokenType.LSB,
+                currChar,
+                this.line,
+                this.start
+            )
+            this.advance()
+            return token
+        } else if (currChar === ']') {
+            const token = new Token(
+                TokenType.RSB,
+                currChar,
+                this.line,
+                this.start
+            )
+            this.advance()
+            return token
+        } else if (currChar === ':') {
+            const token = new Token(
+                TokenType.COLON,
+                currChar,
+                this.line,
+                this.start
+            )
+            this.advance()
+            return token
+        } else if (currChar === ',') {
+            const token = new Token(
+                TokenType.COMMA,
+                currChar,
+                this.line,
+                this.start
+            )
+            this.advance()
+            return token
         } else if (currChar === '\0') {
+            const token = new Token(
+                TokenType.NULLCHAR,
+                currChar,
+                this.line,
+                this.start
+            )
+            this.advance()
+            return token
         } else {
             throw new Error(
                 "Unrecognized token '" +
@@ -128,15 +357,59 @@ export class Lexer {
     }
 
     /* Collect until non-alphanumeric characters and return ID token */
-    identifier() {}
+    identifier() {
+        const characters = [this.currentChar()]
+        const start = this.start
+
+        this.advance()
+
+        while (this.isAlphaNumeric(this.currentChar())) {
+            characters.push(this.currentChar())
+            this.advance()
+        }
+
+        const lexeme = characters.join('')
+
+        // The Keywords object is a dictionary of keyword lexemes as keys
+        // and functions to generate the associated token as values
+        // If the current lexeme is a keyword, use its token generating function,
+        // otherwise use the default ID token generator (stored in '_')
+        const tokenGenerator = Keywords[lexeme] || Keywords._
+
+        return tokenGenerator(lexeme, this.line, start)
+    }
 
     /* Collect until non-numeric characters and return NUM token */
     number() {
         // NOTE: though integers and floats are lumped under a single NUM token type,
         // the semantics analyzer will handle the different types
+        const characters = [this.currentChar()]
+        const start = this.start
+
+        this.advance()
+
+        while (this.isNumeric(this.currentChar())) {
+            characters.push(this.currentChar())
+            this.advance()
+        }
+
+        if (this.currentChar() === '.') {
+            characters.push(this.currentChar())
+            this.advance()
+
+            while (this.isNumeric(this.currentChar())) {
+                characters.push(this.currentChar())
+                this.advance()
+            }
+        }
+
+        const lexeme = characters.join('')
+
+        return new Token(TokenType.NUM, lexeme, this.line, start)
     }
 
     //#endregion
 }
+//#endregion Lexer
 
 export default new Lexer()

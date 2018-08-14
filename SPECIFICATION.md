@@ -69,8 +69,7 @@ _**TODO:**_ I've always just kind of used my own form for my CFGs, but I suppose
                        ;
 
     primary            → NUMBER
-                       | TRUE
-                       | FALSE
+                       | BOOL
                        | LPR expression RPR
                        | IDENTIFIER
                        ;
