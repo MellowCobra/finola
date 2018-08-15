@@ -29,6 +29,8 @@
  *  SOFTWARE.
  */
 
+import { Parser } from './parser.js'
+
 if (process.argv.length > 2) {
     // If the an argument is passed in, attempt to compile it as a source file
 
@@ -66,7 +68,12 @@ if (process.argv.length > 2) {
 
 // Compile the input program
 function compile(program) {
-    console.log('program:', program)
+    console.log('compiling program:', program, '\n')
+
+    const parser = new Parser(program)
+    const ast = parser.parse()
+
+    console.log('AST from parse: ', JSON.stringify(ast, null, 4), '\n')
 }
 
 // Read the contents of the input file and pass it to the callback
