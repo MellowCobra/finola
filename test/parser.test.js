@@ -3,12 +3,13 @@ import { Lexer } from '../src/lexer.js'
 import Token from '../src/token.js'
 import TokenType from '../src/tokenType.js'
 import Expression from '../src/ast/Expression.ast.js'
+import Module, { NodeType } from '../src/ast/Module.ast.js'
 
 describe('Parser::init', () => {
     test('initializes correctly with a source string', () => {
         const program = 'a + b'
         const goal = {
-            lexer: { text: program + '\0', line: 0, start: 1 },
+            lexer: { text: program + '\0', line: 0, start: 1, position: 1 },
             currentToken: new Token(TokenType.ID, 'a', 0, 0),
         }
 
@@ -20,7 +21,7 @@ describe('Parser::init', () => {
     test('initializes correctly with an initialized lexer', () => {
         const program = 'a + b'
         const goal = {
-            lexer: { text: program + '\0', line: 0, start: 1 },
+            lexer: { text: program + '\0', line: 0, start: 1, position: 1 },
             currentToken: new Token(TokenType.ID, 'a', 0, 0),
         }
 
@@ -157,7 +158,7 @@ describe('Parser::consume', () => {
     })
 })
 
-describe('Parser::parse', () => {
+describe('Parser::expression', () => {
     let parser
 
     beforeEach(() => {
@@ -171,7 +172,7 @@ describe('Parser::parse', () => {
         )
 
         parser.init(program)
-        const ast = parser.parse()
+        const ast = parser.expression()
 
         expect(ast).toEqual(goal)
     })
@@ -183,7 +184,7 @@ describe('Parser::parse', () => {
         )
 
         parser.init(program)
-        const ast = parser.parse()
+        const ast = parser.expression()
 
         expect(ast).toEqual(goal)
     })
@@ -195,7 +196,7 @@ describe('Parser::parse', () => {
         )
 
         parser.init(program)
-        const ast = parser.parse()
+        const ast = parser.expression()
 
         expect(ast).toEqual(goal)
     })
@@ -208,7 +209,7 @@ describe('Parser::parse', () => {
         )
 
         parser.init(program)
-        const ast = parser.parse()
+        const ast = parser.expression()
 
         expect(ast).toEqual(goal)
     })
@@ -222,7 +223,7 @@ describe('Parser::parse', () => {
         )
 
         parser.init(program)
-        const ast = parser.parse()
+        const ast = parser.expression()
 
         expect(ast).toEqual(goal)
     })
@@ -236,7 +237,7 @@ describe('Parser::parse', () => {
         )
 
         parser.init(program)
-        const ast = parser.parse()
+        const ast = parser.expression()
 
         expect(ast).toEqual(goal)
     })
@@ -254,7 +255,7 @@ describe('Parser::parse', () => {
         )
 
         parser.init(program)
-        const ast = parser.parse()
+        const ast = parser.expression()
 
         expect(ast).toEqual(goal)
     })
@@ -272,7 +273,7 @@ describe('Parser::parse', () => {
         )
 
         parser.init(program)
-        const ast = parser.parse()
+        const ast = parser.expression()
 
         expect(ast).toEqual(goal)
     })
@@ -285,7 +286,7 @@ describe('Parser::parse', () => {
         )
 
         parser.init(program)
-        const ast = parser.parse()
+        const ast = parser.expression()
 
         expect(ast).toEqual(goal)
     })
@@ -299,7 +300,7 @@ describe('Parser::parse', () => {
         )
 
         parser.init(program)
-        const ast = parser.parse()
+        const ast = parser.expression()
 
         expect(ast).toEqual(goal)
     })
@@ -309,8 +310,66 @@ describe('Parser::parse', () => {
             '1 + a * (_myFoo12 - a2) / 3 ^ -(2 +3) and false == true <=false'
 
         parser.init(program)
-        const ast = parser.parse()
+        const ast = parser.expression()
 
-        console.log(JSON.stringify(ast, null, 4))
+        // console.log(JSON.stringify(ast, null, 4))
+    })
+})
+
+describe('Parser::module', () => {
+    let parser
+
+    beforeEach(() => {
+        parser = new Parser()
+    })
+
+    test('parses an empty module', () => {
+        const program = 'module {}'
+        const goal = new Module.Module([])
+
+        parser.init(program)
+        const ast = parser.module()
+
+        expect(ast).toEqual(goal)
+    })
+
+    test('parses module with a single function', () => {
+        const program = `module { func add(a: int, b: int) { a + b } }`
+        const goal = new Module.Module([
+            new Module.Node(
+                NodeType.FUNC,
+                new Expression.FunctionDeclaration(
+                    new Token(TokenType.ID, 'add', 0, 14),
+                    [
+                        new Expression.VariableDeclaration(
+                            new Token(TokenType.ID, 'a', 0, 18),
+                            new Token(TokenType.INT_T, 'int', 0, 21),
+                            null
+                        ),
+                        new Expression.VariableDeclaration(
+                            new Token(TokenType.ID, 'b', 0, 26),
+                            new Token(TokenType.INT_T, 'int', 0, 29),
+                            null
+                        ),
+                    ],
+                    new Expression.Block([
+                        new Expression.Binary(
+                            new Expression.Variable(
+                                new Token(TokenType.ID, 'a', 0, 36)
+                            ),
+                            new Token(TokenType.PLUS, '+', 0, 38),
+                            new Expression.Variable(
+                                new Token(TokenType.ID, 'b', 0, 40)
+                            )
+                        ),
+                    ])
+                )
+            ),
+        ])
+
+        parser.init(program)
+        const ast = parser.module()
+
+        expect(ast).toEqual(goal)
     })
 })

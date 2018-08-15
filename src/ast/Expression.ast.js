@@ -1,3 +1,9 @@
+class Block {
+    constructor(expressions) {
+        this.expressions = expressions
+    }
+}
+
 // primary
 class Literal {
     constructor(value) {
@@ -46,13 +52,32 @@ class Logical {
     }
 }
 
+class VariableDeclaration {
+    constructor(name, type, value) {
+        this.name = name
+        this.type = type
+        this.value = value
+    }
+}
+
+class FunctionDeclaration {
+    constructor(name, params, block) {
+        this.name = name
+        this.params = params
+        this.block = block
+    }
+}
+
 const Expression = {
     Binary,
+    Block,
+    FunctionDeclaration,
     Literal,
     Logical,
     Power,
     Unary,
     Variable,
+    VariableDeclaration,
 }
 
 export default Expression

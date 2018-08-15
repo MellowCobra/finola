@@ -1,6 +1,8 @@
 import { Lexer } from './lexer'
 import TokenType from './tokenType'
 import Expression from './ast/Expression.ast.js'
+import { NodeType } from './ast/Module.ast.js'
+import Module from './ast/Module.ast.js'
 
 export class Parser {
     constructor(arg) {
@@ -23,11 +25,127 @@ export class Parser {
     //#region Parsing Functions
 
     module() {
-        return this.expression()
+        this.consume(TokenType.MODULE)
+        const nodeList = this.node_list()
+        return new Module.Module(nodeList)
+    }
+
+    node_list() {
+        this.consume(TokenType.LCB)
+
+        const nodes = []
+        if (!this.match(this.currentToken, TokenType.RCB)) {
+            nodes.push(this.node())
+
+            while (!this.match(this.currentToken, TokenType.RCB)) {
+                nodes.push(this.node())
+            }
+        }
+
+        this.consume(TokenType.RCB)
+
+        return nodes
+    }
+
+    node() {
+        const funcDeclaration = this.function_decl()
+
+        return new Module.Node(NodeType.FUNC, funcDeclaration)
+    }
+
+    function_decl() {
+        this.consume(TokenType.FUNC)
+
+        const name = this.currentToken
+        this.consume(TokenType.ID)
+
+        const parameters = this.param_list()
+        const block = this.block()
+
+        return new Expression.FunctionDeclaration(name, parameters, block)
+    }
+
+    param_list() {
+        this.consume(TokenType.LPR)
+
+        const parameters = []
+        if (!this.match(this.currentToken, TokenType.RPR)) {
+            parameters.push(this.param())
+
+            while (this.match(this.currentToken, TokenType.COMMA)) {
+                this.consume(TokenType.COMMA)
+                parameters.push(this.param())
+            }
+        }
+
+        this.consume(TokenType.RPR)
+        return parameters
+    }
+
+    param() {
+        const name = this.currentToken
+        this.consume(TokenType.ID)
+        this.consume(TokenType.COLON)
+
+        const type = this.currentToken
+        this.consume([
+            TokenType.INT_T,
+            TokenType.LONG_T,
+            TokenType.FLOAT_T,
+            TokenType.DOUBLE_T,
+            TokenType.BOOL_T,
+        ])
+
+        return new Expression.VariableDeclaration(name, type, null)
+    }
+
+    block() {
+        this.consume(TokenType.LCB)
+
+        const expressions = []
+        while (!this.match(this.currentToken, TokenType.RCB)) {
+            expressions.push(this.expression())
+        }
+
+        this.consume(TokenType.RCB)
+
+        return new Expression.Block(expressions)
     }
 
     expression() {
-        return this.logic_or()
+        if (this.match(this.currentToken, TokenType.LET)) {
+            return this.var_decl()
+        } else if (this.match(this.currentToken, TokenType.LCB)) {
+            return this.block()
+        } else if (this.match(this.currentToken, TokenType.FUNC)) {
+            return this.function_decl()
+        } else {
+            return this.logic_or()
+        }
+    }
+
+    var_decl() {
+        this.consume(TokenType.LET)
+
+        const id = this.currentToken
+        this.consume(TokenType.ID)
+
+        this.consume(TokenType.COLON)
+
+        const type = this.currentToken
+        this.consume([
+            TokenType.INT_T,
+            TokenType.LONG_T,
+            TokenType.FLOAT_T,
+            TokenType.DOUBLE_T,
+            TokenType.BOOL_T,
+        ])
+
+        this.consume(TokenType.EQ)
+
+        const value = this.expression
+
+        return new Expression.VariableDeclaration(id, type, value)
     }
 
     logic_or() {

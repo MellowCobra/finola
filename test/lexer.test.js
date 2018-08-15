@@ -10,6 +10,7 @@ describe('Lexer::constructor', () => {
         expect(lexer).toEqual({
             text: '\0',
             line: 0,
+            position: 0,
             start: 0,
         })
     })
@@ -19,6 +20,7 @@ describe('Lexer::constructor', () => {
 
         expect(lexer).toEqual({
             text: '1 + 2\0',
+            position: 0,
             line: 0,
             start: 0,
         })
@@ -30,6 +32,7 @@ describe('Lexer::constructor', () => {
         expect(lexer).toEqual({
             text: '\0',
             line: 0,
+            position: 0,
             start: 0,
         })
     })
@@ -40,6 +43,7 @@ describe('Lexer::constructor', () => {
         expect(lexer).toEqual({
             text: '\0',
             line: 0,
+            position: 0,
             start: 0,
         })
     })
@@ -50,6 +54,7 @@ describe('Lexer::constructor', () => {
         expect(lexer).toEqual({
             text: '1 + 2\0',
             line: 0,
+            position: 0,
             start: 0,
         })
     })
@@ -60,6 +65,7 @@ describe('Lexer::constructor', () => {
         expect(lexer).toEqual({
             text: '1 + 2\0',
             line: 0,
+            position: 0,
             start: 0,
         })
     })
@@ -85,16 +91,16 @@ describe('Lexer::advance', () => {
     test('increments the source pointer and returns the next character', () => {
         const nextChar = lexer.advance()
 
-        expect(lexer.start).toBe(1)
+        expect(lexer.position).toBe(1)
         expect(nextChar).toBe('+')
     })
 
     test('does not increment source pointer and returns nullchar when at the end of source', () => {
-        lexer.start = 3 // The position of '\0' in the source text
+        lexer.position = 3 // The position of '\0' in the source text
 
         const nextChar = lexer.advance()
 
-        expect(lexer.start).toBe(3)
+        expect(lexer.position).toBe(3)
         expect(nextChar).toBe('\0')
     })
 
@@ -103,7 +109,7 @@ describe('Lexer::advance', () => {
 
         const nextChar = lexer.advance()
 
-        expect(lexer.start).toBe(0)
+        expect(lexer.position).toBe(0)
         expect(nextChar).toBe('\0')
     })
 })
@@ -128,7 +134,7 @@ describe('Lexer::currentChar', () => {
     })
 
     test('returns nullchar if start is beyond the end of source text', () => {
-        lexer.start = lexer.text.length
+        lexer.position = lexer.text.length
 
         expect(lexer.currentChar()).toBe('\0')
     })
@@ -154,14 +160,14 @@ describe('Lexer::peek', () => {
 
     test('returns nullchar when source pointer is at last non-nullchar character', () => {
         lexer = new Lexer('1+2')
-        lexer.start = 2
+        lexer.position = 2
 
         expect(lexer.peek()).toBe('\0')
     })
 
     test('returns null when source pointer is on nullchar', () => {
         lexer = new Lexer('1+2')
-        lexer.start = 3
+        lexer.position = 3
 
         expect(lexer.peek()).toBeNull()
     })
@@ -262,44 +268,57 @@ describe('Lexer::skipWhitespace', () => {
     })
 
     test('skips single space', () => {
-        lexer.start = 1
+        lexer.position = 1
 
         lexer.skipWhitespace()
 
-        expect(lexer.start).toBe(2)
+        expect(lexer.position).toBe(2)
         expect(lexer.currentChar()).toBe('+')
     })
 
     test('skips single tab', () => {
         lexer = new Lexer('1\t+2')
-        lexer.start = 1
+        lexer.position = 1
 
         lexer.skipWhitespace()
 
-        expect(lexer.start).toBe(2)
+        expect(lexer.position).toBe(2)
         expect(lexer.currentChar()).toBe('+')
     })
 
     test('skips single newline', () => {
         lexer = new Lexer(`1
 +2`)
-        lexer.start = 1
+        lexer.position = 1
 
         lexer.skipWhitespace()
 
-        expect(lexer.start).toBe(2)
+        expect(lexer.position).toBe(2)
         expect(lexer.currentChar()).toBe('+')
     })
 
     test('skips multiple whitespace characters', () => {
         lexer = new Lexer(`1    \t
   \t +2`)
+        lexer.position = 1
+
+        lexer.skipWhitespace()
+
+        expect(lexer.position).toBe(11)
+        expect(lexer.currentChar()).toBe('+')
+    })
+
+    test('correctly tracks line and start after encountering newline', () => {
+        lexer = new Lexer(`1    \t
+  \t +2`)
+        lexer.position = 1
         lexer.start = 1
 
         lexer.skipWhitespace()
 
-        expect(lexer.start).toBe(11)
-        expect(lexer.currentChar()).toBe('+')
+        expect(lexer.position).toBe(11)
+        expect(lexer.line).toBe(2)
+        expect(lexer.start).toBe(4)
     })
 })
 
@@ -334,6 +353,7 @@ describe('Lexer::number', () => {
     })
 
     test('parses multi-digit numbers', () => {
+        lexer.position = 4
         lexer.start = 4
 
         const number = lexer.number()
@@ -347,6 +367,7 @@ describe('Lexer::number', () => {
     })
 
     test('parses decimal numbers', () => {
+        lexer.position = 9
         lexer.start = 9
 
         const number = lexer.number()
@@ -360,10 +381,10 @@ describe('Lexer::number', () => {
     })
 
     test('after run, source pointer is at position after number', () => {
-        lexer.start = 4
+        lexer.position = 4
         lexer.number()
 
-        expect(lexer.start).toBe(6)
+        expect(lexer.position).toBe(6)
     })
 })
 
@@ -388,6 +409,7 @@ describe('Lexer::identifier', () => {
     })
 
     test('parses identifier with underscore', () => {
+        lexer.position = 6
         lexer.start = 6
 
         const id = lexer.identifier()
@@ -401,6 +423,7 @@ describe('Lexer::identifier', () => {
     })
 
     test('parses identifier with number', () => {
+        lexer.position = 15
         lexer.start = 15
 
         const id = lexer.identifier()

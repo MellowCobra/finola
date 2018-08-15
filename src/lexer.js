@@ -63,8 +63,9 @@ export class Lexer {
 
         // Initialize Lexer props
         this.text = program
-        this.line = 0
+        this.line = 1
         this.start = 0
+        this.position = 0
     }
 
     getAllTokens() {
@@ -294,20 +295,21 @@ export class Lexer {
     /* Advance the source pointer to the next character */
     advance() {
         if (this.isAtEnd()) {
-            return this.text[this.start]
+            return this.text[this.position]
         }
 
+        this.position++
         this.start++
-        return this.text[this.start]
+        return this.text[this.position]
     }
 
     /* Return the current character pointed to by the source pointer */
     currentChar() {
-        if (this.start < 0 || this.isAtEnd()) {
+        if (this.position < 0 || this.isAtEnd()) {
             return '\0'
         }
 
-        return this.text[this.start]
+        return this.text[this.position]
     }
 
     /* Look one character ahead of the source pointer */
@@ -316,12 +318,12 @@ export class Lexer {
             return null
         }
 
-        return this.text[this.start + 1]
+        return this.text[this.position + 1]
     }
 
     /* Determine if we are at the end of the input */
     isAtEnd() {
-        return this.start >= this.text.length - 1
+        return this.position >= this.text.length - 1
     }
 
     /* Determine if the character is a whitespace character */
@@ -352,7 +354,14 @@ export class Lexer {
     /* Advance until the next non-whitespace character */
     skipWhitespace() {
         while (this.isWhitespace(this.currentChar())) {
+            const currentChar = this.currentChar()
+
             this.advance()
+
+            if (currentChar === '\n') {
+                this.line++
+                this.start = 0
+            }
         }
     }
 

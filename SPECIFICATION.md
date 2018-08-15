@@ -37,10 +37,40 @@ _**TODO:**_ I've always just kind of used my own form for my CFGs, but I suppose
 
 # Context-Free Grammar
 
-    module             → expression
+    module             → MODULE node_list
+                       ;
+
+    node_list          → LCB (node ( SEMI node )* )? RCB
+                       ;
+
+    node               → func_decl
+                       ;
+
+    func_decl          → FUNC ID param_list block
+                       ;
+
+    param_list         → LPR ( param ( COMMA param)* )? RPR
+                       ;
+
+    param              → ID COLON type
+
+    block              → LCB ( expression )* RCB
+                       ;
+
+    var_decl           → LET ID COLON type EQ expression
+                       ;
+
+    type               → INT_T
+                       | LONG_T
+                       | FLOAT_T
+                       | DOUBLE_T
+                       | BOOL_T
                        ;
 
     expression         → logic_or
+                       | var_decl
+                       | func_decl
+                       | block
                        ;
 
     logic_or           → logic_and ( OR logic_and )*
